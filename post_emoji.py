@@ -9,13 +9,13 @@ URL_CUSTOMIZE = "{workspace}/customize/emoji"
 API_TOKEN_REGEX = r"api_token: \"(.*)\","
 
 
-def post_emoji(workspace_name, email, password, emoji_name, filepath):
+def post_emoji(workspace_name, email, password, emoji_name, file_binary):
     session, slack_url = login(workspace_name, email, password)
     api_key = _parse_api_key(
         session, URL_CUSTOMIZE.format(workspace=slack_url))
 
     param = _create_param(api_key, emoji_name)
-    file = {"image": open(filepath, "rb")}
+    file = {"image": file_binary}
     res = session.post(URL_ADD.format(workspace=slack_url),
                        data=param, files=file, allow_redirects=False)
 
@@ -53,7 +53,7 @@ def main():
         email="",
         password="",
         emoji_name="",
-        filepath=""))
+        file_binary=open("", "rb")))
 
 
 if __name__ == '__main__':
