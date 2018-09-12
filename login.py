@@ -4,14 +4,15 @@ import lxml.html
 
 def login(workspace_name, email, password):
     """
-    slackにログインしてCookieのセッションIDを取得する
+    slackにログインしてCookieを適用したセッションを取得する
     """
     slack_url = "https://%s.slack.com" % workspace_name
     crumb_token = _parse_crumb(slack_url)
     param = _create_param(email, password, crumb_token)
-    res = requests.post(slack_url, data=param)
-
-    return res.headers["set-cookie"]
+    session = requests.Session()
+    res = session.post(slack_url, data=param, allow_redirects=False)
+    session.headers = {"Cookie": res.cookies.get("d")}
+    return session, slack_url
 
 
 def _create_param(email, password, crumb):
@@ -37,4 +38,4 @@ def _parse_crumb(slack_url):
 
 
 if __name__ == '__main__':
-    print(login("zuttomosystem", "", ""))
+    print(login("", "", ""))
