@@ -1,4 +1,5 @@
 import requests
+import lxml.html
 
 
 def login(workspace_name, email, password):
@@ -29,7 +30,6 @@ def _parse_crumb(slack_url):
     """
     crumb tokenをパースする
     """
-    import lxml.html
     html = requests.get(slack_url).text
     root = lxml.html.fromstring(html)
     crumb_input = root.cssselect('#signin_form > input[name="crumb"]')
