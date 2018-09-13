@@ -17,6 +17,7 @@ class HttpHandler(BaseHTTPRequestHandler):
         elif requestBody["type"] == "event_callback":
             pass  # TODO
 
+        self.send_response(200)
         self._set_content_length(res)
         self.end_headers()
 
