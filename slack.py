@@ -34,8 +34,9 @@ class Slack():
                     res = post_json("{}{}".format(self._base_url, SHARE_PUBLIC_URL), {
                                     "token": self._oauth_token, "file": file["id"]})
                     res.raise_for_status()
+                    res_dict = res.json()
                     # シェアされたファイルを取得する
-                    res = requests.get(res["file"]["url_download"])
+                    res = requests.get(res_dict["file"]["url_download"])
                     res.raise_for_status()
                     files.append(res.content)
         return files
