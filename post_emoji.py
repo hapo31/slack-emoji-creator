@@ -4,13 +4,14 @@ import re
 
 from login import login
 
+URL_SLACK = "https://{workspace}.slack.com"
 URL_ADD = "{workspace}/api/emoji.add"
 URL_CUSTOMIZE = "{workspace}/customize/emoji"
 API_TOKEN_REGEX = r"api_token: \"(.*)\","
 
 
-def post_emoji(workspace_name, email, password, emoji_name, file_binary):
-    session, slack_url = login(workspace_name, email, password)
+def post_emoji(workspace_name, session, emoji_name, file_binary):
+    slack_url = URL_SLACK.format(workspace=workspace_name)
     api_key = _parse_api_key(
         session, URL_CUSTOMIZE.format(workspace=slack_url))
 
@@ -19,7 +20,7 @@ def post_emoji(workspace_name, email, password, emoji_name, file_binary):
     res = session.post(URL_ADD.format(workspace=slack_url),
                        data=param, files=file, allow_redirects=False)
 
-    return res.json()
+    return res
 
 
 def _parse_api_key(session, customize_url):
@@ -48,12 +49,15 @@ def _create_param(api_key, name):
 
 
 def main():
+    workspace_name = ""
+    session = login(workspace_name=workspace_name,
+                    email="",
+                    password="")
     print(post_emoji(
-        workspace_name="",
-        email="",
-        password="",
+        workspace_name=workspace_name,
+        session=session,
         emoji_name="",
-        file_binary=open("", "rb")))
+        file_binary=open("", "rb")).json())
 
 
 if __name__ == '__main__':
