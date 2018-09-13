@@ -54,7 +54,7 @@ class HttpHandler(BaseHTTPRequestHandler):
             bot_user_id = os.environ["BOT_USER_ID"]
             workspace_name = os.environ["WORKSPACE"]
             slack_base_url = SLACK_URL.format(
-                workspace_name=workspace_name)
+                workspace=workspace_name)
             slack_hook_url = os.environ["SLACK_HOOK_URL"]
             oauth_token = os.environ["OAUTH_TOKEN"]
             email = os.environ["EMOJI_ADD_EMAIL"]
