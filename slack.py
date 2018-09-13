@@ -2,7 +2,7 @@ import requests
 from emojigen import fetch_emoji, create_emoji_url
 
 
-class SlackBot():
+class Slack():
     def __init__(self, hook_url: str):
         self._url = hook_url
 

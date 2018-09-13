@@ -2,6 +2,8 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 import json
 
+from slack import Slack
+
 
 class HttpHandler(BaseHTTPRequestHandler):
     def do_POST(self):
@@ -15,7 +17,7 @@ class HttpHandler(BaseHTTPRequestHandler):
             res = json.dumps(requestBody)
 
         elif requestBody["type"] == "event_callback":
-            pass  # TODO
+            self._in_event_callback(requestBody)
 
         self.send_response(200)
         self._set_content_length(res)
@@ -34,6 +36,16 @@ class HttpHandler(BaseHTTPRequestHandler):
 
     def _set_content_length(self, text: str):
         self.send_header("Content-Length", len(text))
+
+    def _in_event_callback(self, response: dict):
+        """
+        event_callbackを受信したときの処理
+        """
+        slack_url = os.environ["SLACK_HOOK_URL"]
+
+        slack = Slack(slack_url)
+        # テストでオウム返し
+        slack.post_message(response["event"]["text"])
 
 
 def run(server=HTTPServer, port=5000):
