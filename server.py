@@ -20,7 +20,7 @@ class HttpHandler(BaseHTTPRequestHandler):
             res = requestBody
 
         # 自分自身の発言と#emoji-creatorチャンネル以外の発言は無視
-        elif requestBody["type"] == "event_callback" and requestBody["event"]["id"] != bot_user_id and requestBody["event"]["item"]["channel"] == channel_id:
+        elif requestBody["type"] == "event_callback" and requestBody["event"]["user"] != bot_user_id and requestBody["event"]["item"]["channel"] == channel_id:
             self._in_event_callback(requestBody)
 
         self.send_response(200)
