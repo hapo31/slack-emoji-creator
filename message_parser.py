@@ -6,7 +6,7 @@ class CommandParser():
         target, method, option_query = self._lexer(message)
         self.target = target
         self.type = method[0] if len(method) == 1 else ""
-
+        self.args = message.split()
         self.options = self._option_parser(option_query)
 
     def _lexer(self, message) -> (str, list, list):
