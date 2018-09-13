@@ -11,10 +11,10 @@ class HttpHandler(BaseHTTPRequestHandler):
         content_len = int(self.headers.get('content-length'))
         requestBody = json.loads(self.rfile.read(content_len).decode('utf-8'))
 
-        res = ""
+        res = {}
         if requestBody["type"] == "url_verification":
-            # チャレンジレスポンスを返す
-            res = json.dumps(requestBody)
+            # チャレンジレスポンスを返すためにそのままBodyを渡す
+            res = requestBody
 
         elif requestBody["type"] == "event_callback":
             self._in_event_callback(requestBody)
@@ -23,7 +23,7 @@ class HttpHandler(BaseHTTPRequestHandler):
         self._set_content_length(res)
         self.end_headers()
 
-        self.wfile.write(res.encode("utf-8"))
+        self.wfile.write(json.dumps(res).encode("utf-8"))
 
     def do_GET(self):
         text = "Work!"
