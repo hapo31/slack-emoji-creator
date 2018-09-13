@@ -11,16 +11,13 @@ class HttpHandler(BaseHTTPRequestHandler):
         content_len = int(self.headers.get('content-length'))
         requestBody = json.loads(self.rfile.read(content_len).decode('utf-8'))
 
-        bot_user_id = os.environ["BOT_USER_ID"]
-        channel_id = os.environ["CHANNEL_ID"]
-
         res = {}
         if requestBody["type"] == "url_verification":
             # チャレンジレスポンスを返すためにそのままBodyを渡す
             res = requestBody
 
         # 自分自身の発言と#emoji-creatorチャンネル以外の発言は無視
-        elif requestBody["type"] == "event_callback" and requestBody["event"]["user"] != bot_user_id and requestBody["event"]["channel"] == channel_id:
+        elif requestBody["type"] == "event_callback":
             self._in_event_callback(requestBody)
 
         self.send_response(200)
@@ -45,11 +42,17 @@ class HttpHandler(BaseHTTPRequestHandler):
         """
         event_callbackを受信したときの処理
         """
-        slack_url = os.environ["SLACK_HOOK_URL"]
+        event = response["event"]
+        if event["type"] == "message":
+            channel_id = os.environ["CHANNEL_ID"]
+            bot_user_id = os.environ["BOT_USER_ID"]
+            if event["user"] != bot_user_id and event["channel"] == channel_id:
 
-        slack = Slack(slack_url)
-        # テストでオウム返し
-        slack.post_message(response["event"]["text"])
+                slack_url = os.environ["SLACK_HOOK_URL"]
+
+                slack = Slack(slack_url)
+                # テストでオウム返し
+                slack.post_message(response["event"]["text"])
 
 
 def run(server=HTTPServer, port=5000):
