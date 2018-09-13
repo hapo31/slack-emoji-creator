@@ -42,5 +42,5 @@ def run(server=HTTPServer, port=5000):
 
 
 if __name__ == '__main__':
-    port = int(os.environ["SERVE_PORT"])
+    port = int(os.environ["PORT"]) if os.environ["PORT"] is not None else 5000
     run(port=port)
