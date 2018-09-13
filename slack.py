@@ -35,7 +35,7 @@ class Slack():
                                     "token": self._oauth_token, "file": file["id"]})
                     res.raise_for_status()
                     # シェアされたファイルを取得する
-                    res = requests.get(file["permalink_public"])
+                    res = requests.get(res["file"]["url_download"])
                     res.raise_for_status()
                     files.append(res.content)
         return files
