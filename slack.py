@@ -1,6 +1,8 @@
 import requests
 from emojigen import fetch_emoji, create_emoji_url
 
+from post_tool import post_json
+
 
 class Slack():
     def __init__(self, hook_url: str):
@@ -15,5 +17,5 @@ class Slack():
         param = {
             "text": text
         }
-        res = requests.post(self._url, data=param)
+        res = post_json(self._url, data=param)
         res.raise_for_status()
