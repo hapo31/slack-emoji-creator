@@ -11,6 +11,8 @@ class HttpHandler(BaseHTTPRequestHandler):
         content_len = int(self.headers.get('content-length'))
         requestBody = json.loads(self.rfile.read(content_len).decode('utf-8'))
 
+        print(requestBody)
+
         bot_user_id = os.environ["BOT_USER_ID"]
         channel_id = os.environ["CHANNEL_ID"]
 
