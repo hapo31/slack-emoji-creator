@@ -11,7 +11,6 @@ class CommandParser():
 
     def _lexer(self, message) -> (str, list, list):
         tokens = message.split()
-        print(tokens)
         if len(tokens) <= 0:
             return "error", [], []
         else:
@@ -27,11 +26,9 @@ class CommandParser():
         if len(option_query) > 0:
             # 一旦結合したあと、&かスペースか,でsplitする
             option_tokens = re.split(r"[&\s,]", " ".join(option_query))
-            print(option_tokens)
             for token in option_tokens:
                 # 各オプションの値は=で繋がっていることとする
                 option_list = token.split("=")
-                print(option_list)
                 if len(option_list) == 2:
                     prop, value = option_list
                     options[prop.strip()] = value.strip()
