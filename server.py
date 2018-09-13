@@ -60,29 +60,32 @@ class HttpHandler(BaseHTTPRequestHandler):
             email = os.environ["EMOJI_ADD_EMAIL"]
             password = os.environ["EMOJI_PASSWORD"]
 
-            if event["user"] != bot_user_id and event["channel"] == channel_id:
-                slack = Slack(base_url=slack_base_url,
-                              hook_url=slack_hook_url, oauth_token=oauth_token)
-                # テストでオウム返し
-                # slack.post_message(response["event"]["text"])
+            if "user" in event and "channel" in event:
+                if event["user"] != bot_user_id and event["channel"] == channel_id:
+                    slack = Slack(base_url=slack_base_url,
+                                  hook_url=slack_hook_url, oauth_token=oauth_token)
+                    # テストでオウム返し
+                    # slack.post_message(response["event"]["text"])
 
-                command = CommandParser(event["text"])
+                    command = CommandParser(event["text"])
 
-                if command.target == "emoji":
-                    # emoji create emoji_name というチャットを付けて
-                    if command.type == "create" and "files" in event:
-                        try:
-                            files = slack.fetch_events_files(event["files"])
-                            session = login(workspace_name, email, password)
-                            emoji_name = command.args[2]
-                            res = slack.add_emoji(
-                                workspace_name, session, emoji_name, files[0])
+                    if command.target == "emoji":
+                        # emoji create emoji_name というチャットを付けて
+                        if command.type == "create" and "files" in event:
+                            try:
+                                files = slack.fetch_events_files(
+                                    event["files"])
+                                session = login(
+                                    workspace_name, email, password)
+                                emoji_name = command.args[2]
+                                res = slack.add_emoji(
+                                    workspace_name, session, emoji_name, files[0])
 
-                            if res.status_code == 200:
-                                slack.post_message(
-                                    "絵文字が作成されました :%s:" % emoji_name)
-                        except Exception as e:
-                            slack.post_message("エラーが発生しました・・・ %s" % e)
+                                if res.status_code == 200:
+                                    slack.post_message(
+                                        "絵文字が作成されました :%s:" % emoji_name)
+                            except Exception as e:
+                                slack.post_message("エラーが発生しました・・・ %s" % e)
 
 
 def run(server=HTTPServer, port=5000):
