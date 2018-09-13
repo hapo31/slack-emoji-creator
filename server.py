@@ -11,12 +11,16 @@ class HttpHandler(BaseHTTPRequestHandler):
         content_len = int(self.headers.get('content-length'))
         requestBody = json.loads(self.rfile.read(content_len).decode('utf-8'))
 
+        bot_user_id = os.environ["BOT_USER_ID"]
+        channel_id = os.environ["CHANNEL_ID"]
+
         res = {}
         if requestBody["type"] == "url_verification":
             # チャレンジレスポンスを返すためにそのままBodyを渡す
             res = requestBody
 
-        elif requestBody["type"] == "event_callback":
+        # 自分自身の発言と#emoji-creatorチャンネル以外の発言は無視
+        elif requestBody["type"] == "event_callback" and requestBody["event"]["id"] != bot_user_id and requestBody["event"]["item"]["channel"] == channel_id:
             self._in_event_callback(requestBody)
 
         self.send_response(200)
