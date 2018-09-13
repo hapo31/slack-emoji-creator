@@ -1,6 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 import json
+import traceback
 
 from slack import Slack
 from message_parser import CommandParser
@@ -86,6 +87,8 @@ class HttpHandler(BaseHTTPRequestHandler):
                                         "絵文字が作成されました :%s:" % emoji_name)
                             except Exception as e:
                                 slack.post_message("エラーが発生しました・・・ %s" % e)
+                                err = traceback.format_exc()
+                                print(err)
 
 
 def run(server=HTTPServer, port=5000):
