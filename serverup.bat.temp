@@ -1,0 +1,12 @@
+@echo off
+set PORT=5000
+set BOT_USER_ID=
+set CHANNEL_ID=
+set EMOJI_ADD_EMAIL=
+set EMOJI_PASSWORD=
+set OAUTH_TOKEN=
+set SLACK_BOT_TOKEN=
+set SLACK_HOOK_URL=
+set WORKSPACE=
+
+python server.py
