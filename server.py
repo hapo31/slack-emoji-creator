@@ -11,8 +11,6 @@ class HttpHandler(BaseHTTPRequestHandler):
         content_len = int(self.headers.get('content-length'))
         requestBody = json.loads(self.rfile.read(content_len).decode('utf-8'))
 
-        print(requestBody)
-
         bot_user_id = os.environ["BOT_USER_ID"]
         channel_id = os.environ["CHANNEL_ID"]
 
@@ -22,7 +20,7 @@ class HttpHandler(BaseHTTPRequestHandler):
             res = requestBody
 
         # 自分自身の発言と#emoji-creatorチャンネル以外の発言は無視
-        elif requestBody["type"] == "event_callback" and requestBody["event"]["user"] != bot_user_id and requestBody["event"]["item"]["channel"] == channel_id:
+        elif requestBody["type"] == "event_callback" and requestBody["event"]["user"] != bot_user_id and requestBody["event"]["channel"] == channel_id:
             self._in_event_callback(requestBody)
 
         self.send_response(200)
