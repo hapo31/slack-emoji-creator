@@ -1,4 +1,5 @@
 import requests
+
 from emojigen import fetch_emoji, create_emoji_url
 from post_emoji import post_emoji
 
@@ -29,17 +30,23 @@ class Slack():
                     # 画像以外のファイルは飛ばす
                     if file["mimetype"].find("image") == -1:
                         continue
-
+                    print(file)
                     # まずファイルをpublic状態にする
                     res = post_json("{}{}".format(self._base_url, SHARE_PUBLIC_URL), {
                                     "token": self._oauth_token, "file": file["id"]})
                     res.raise_for_status()
                     res_dict = res.json()
+                    print(res_dict)
                     # シェアされたファイルを取得する
-                    res = requests.get(res_dict["file"]["url_download"])
+                    res = requests.get(res_dict["file"]["permalink_public"])
                     res.raise_for_status()
                     files.append(res.content)
         return files
+
+    def fetch_image_from_url(self, url):
+        res = requests.get(url)
+        res.raise_for_status()
+        return res.content
 
     def add_emoji(self, workspace: str, session, name: str, file: bytes):
         res = post_emoji(workspace, session, name, file)
