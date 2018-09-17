@@ -1,17 +1,20 @@
 import requests
 
 from emojigen import fetch_emoji, create_emoji_url
-from emoji import post_emoji
+from emoji import post_emoji, remove_emoji
 
 from post_tool import post_json
 
 SHARE_PUBLIC_URL = "/api/files.sharedPublicURL"
+URL_SLACK = "https://{workspace}.slack.com"
 
 
 class Slack():
-    def __init__(self, base_url: str, hook_url: str, oauth_token: str):
-        self._base_url = base_url
+    def __init__(self, workspace_name: str, session, hook_url: str, oauth_token: str):
+        self._workspace_name = workspace_name
+        self._session = session
         self._hook_url = hook_url
+        self._base_url = URL_SLACK.format(workspace=workspace_name)
         self._oauth_token = oauth_token
 
     def post_message(self, text):
@@ -48,7 +51,12 @@ class Slack():
         res.raise_for_status()
         return res.content
 
-    def add_emoji(self, workspace: str, session, name: str, file: bytes):
-        res = post_emoji(workspace, session, name, file)
+    def add_emoji(self, name: str, file: bytes):
+        res = post_emoji(self._workspace_name, self._session, name, file)
+        res.raise_for_status()
+        return res
+
+    def remove_emoji(self, name: str):
+        res = remove_emoji(self._workspace_name, self._session, name)
         res.raise_for_status()
         return res

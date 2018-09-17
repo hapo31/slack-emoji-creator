@@ -8,8 +8,6 @@ from slack import Slack
 from message_parser import CommandParser
 from login import login
 
-SLACK_URL = "https://{workspace}.slack.com"
-
 
 def is_url(maybe_url):
     r = urlparse(maybe_url)
@@ -60,8 +58,6 @@ class HttpHandler(BaseHTTPRequestHandler):
             channel_id = os.environ["CHANNEL_ID"]
             bot_user_id = os.environ["BOT_USER_ID"]
             workspace_name = os.environ["WORKSPACE"]
-            slack_base_url = SLACK_URL.format(
-                workspace=workspace_name)
             slack_hook_url = os.environ["SLACK_HOOK_URL"]
             oauth_token = os.environ["OAUTH_TOKEN"]
             email = os.environ["EMOJI_ADD_EMAIL"]
@@ -69,16 +65,19 @@ class HttpHandler(BaseHTTPRequestHandler):
 
             if "user" in event and "channel" in event:
                 if event["user"] != bot_user_id and event["channel"] == channel_id:
-                    slack = Slack(base_url=slack_base_url,
-                                  hook_url=slack_hook_url, oauth_token=oauth_token)
-                    # テストでオウム返し
-                    # slack.post_message(response["event"]["text"])
 
                     command = CommandParser(event["text"])
 
                     if command.target == "emoji":
-                        # emoji create emoji_name というチャットを付けて投稿すると絵文字が作成される
+                        # コマンドっぽい文字列が投稿されたらログインして処理をする
+                        session, _ = login(
+                            workspace_name, email, password)
+                        slack = Slack(workspace_name=workspace_name,
+                                      session=session,
+                                      hook_url=slack_hook_url, oauth_token=oauth_token)
+
                         if command.type == "create":
+                            # emoji create emoji_name というチャットを付けて投稿すると絵文字が作成される
                             try:
                                 emoji_file = bytes()
                                 file_fetch_success = False
@@ -93,17 +92,35 @@ class HttpHandler(BaseHTTPRequestHandler):
                                     if len(files) > 0:
                                         file_fetch_success = True
                                 if file_fetch_success:
-                                    session, _ = login(
-                                        workspace_name, email, password)
                                     emoji_name = command.args[2]
                                     res = slack.add_emoji(
-                                        workspace_name, session, emoji_name, emoji_file)
+                                        emoji_name, emoji_file)
 
-                                    if res.status_code == 200:
+                                    # ok: True なら成功
+                                    if res.status_code == 200 and "ok" in res.json() and res.json()["ok"]:
                                         slack.post_message(
                                             "絵文字が作成されました :%s:" % emoji_name)
+                                    else:
+                                        slack.post_message("絵文字の作成に失敗しました…。")
                             except Exception as e:
                                 # slack.post_message("エラーが発生しました・・・ %s" % e)
+                                err = traceback.format_exc()
+                                print(err)
+                        elif command.type == "remove":
+                            # 削除コマンド
+                            try:
+                                if len(command.args) >= 3:
+                                    emoji_name = command.args[2]
+                                    res = slack.remove_emoji(emoji_name)
+
+                                    if res.status_code == 200 and "ok" in res.json() and res.json()["ok"]:
+                                        slack.post_message(
+                                            "絵文字が消去されました :%s:" % emoji_name)
+                                    else:
+                                        slack.post_message(
+                                            "絵文字の削除に失敗しました…。 誤字または存在しない絵文字ではないですか?")
+
+                            except Exception as e:
                                 err = traceback.format_exc()
                                 print(err)
 
