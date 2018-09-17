@@ -21,7 +21,6 @@ class CommandParser():
         option_queryはGETパラメータのように＆区切りか、スペース区切りの文字列を想定
         """
         options = {}
-        print(option_query)
         # option_query は range 構文で切り取っているので、リストとして渡されている想定
         if len(option_query) > 0:
             # 一旦結合したあと、&かスペースか,でsplitする
