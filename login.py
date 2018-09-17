@@ -10,8 +10,7 @@ def login(workspace_name, email, password):
     crumb_token = _parse_crumb(slack_url)
     param = _create_param(email, password, crumb_token)
     session = requests.Session()
-    res = session.post(slack_url, data=param, allow_redirects=False)
-    session.headers = {"Cookie": res.cookies.get("d")}
+    session.post(slack_url, data=param, allow_redirects=False)
     return session, slack_url
 
 
