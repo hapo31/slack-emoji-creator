@@ -6,20 +6,33 @@ from login import login
 
 URL_SLACK = "https://{workspace}.slack.com"
 URL_ADD = "{workspace}/api/emoji.add"
-URL_REMOVE = "{workspace}/api/emoji.remove"
-URL_CUSTOMIZE = "{workspace}/customize/emoji"
+URL_REMOVE = "{workspace_url}/api/emoji.remove"
+URL_CUSTOMIZE = "{workspace_url}/customize/emoji"
 API_TOKEN_REGEX = r"api_token: \"(.*)\","
 
 
-def post_emoji(workspace_name, session, emoji_name, file_binary):
+def post_emoji(workspace_name: str, session, emoji_name: str, file_binary: bytes):
     slack_url = URL_SLACK.format(workspace=workspace_name)
     api_key = _parse_api_key(
-        session, URL_CUSTOMIZE.format(workspace=slack_url))
+        session, URL_CUSTOMIZE.format(workspace_url=slack_url))
 
     param = _create_param(api_key, emoji_name)
     file = {"image": file_binary}
-    res = session.post(URL_ADD.format(workspace=slack_url),
+    res = session.post(URL_ADD.format(workspace_url=slack_url),
                        data=param, files=file, allow_redirects=False)
+
+    return res
+
+
+def remove_emoji(workspace_name: str, session, emoji_name: str):
+    slack_url = URL_SLACK.format(workspace=workspace_name)
+    api_key = _parse_api_key(
+        session, URL_CUSTOMIZE.format(workspace_url=slack_url))
+
+    param = _create_param(api_key, emoji_name)
+
+    res = session.post(URL_REMOVE.format(workspace_url=slack_url),
+                       data=param, allow_redirects=False)
 
     return res
 
