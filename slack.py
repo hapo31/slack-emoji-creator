@@ -1,7 +1,7 @@
 import requests
 
 from emojigen import fetch_emoji, create_emoji_url
-from post_emoji import post_emoji
+from emoji import post_emoji
 
 from post_tool import post_json
 
