@@ -5,7 +5,7 @@ import re
 from login import login
 
 URL_SLACK = "https://{workspace}.slack.com"
-URL_ADD = "{workspace}/api/emoji.add"
+URL_ADD = "{workspace_url}/api/emoji.add"
 URL_REMOVE = "{workspace_url}/api/emoji.remove"
 URL_CUSTOMIZE = "{workspace_url}/customize/emoji"
 API_TOKEN_REGEX = r"api_token: \"(.*)\","
