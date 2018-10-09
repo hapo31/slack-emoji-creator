@@ -4,9 +4,12 @@ import os
 import json
 import traceback
 
+from emoji import check_login
 from slack import Slack
 from message_parser import CommandParser
-from login import login
+from login import login, create_cookie_from_session, create_session_from_cookie
+
+from db_service import PostgresService
 
 
 def is_url(maybe_url):
@@ -48,6 +51,35 @@ class HttpHandler(BaseHTTPRequestHandler):
     def _set_content_length(self, text: str):
         self.send_header("Content-Length", len(text))
 
+    def _create_db_service(self):
+        db_host = os.environ["DB_HOST"]
+        db_name = os.environ["DB_NAME"]
+        db_user = os.environ["DB_USER"]
+        db_pass = os.environ["DB_PASSWORD"]
+
+        db_service = PostgresService(db_host, db_name, db_user, db_pass)
+
+        return db_service
+
+    def _get_login_session(self, db_service):
+        """
+        取得済みセッションを取得する
+        """
+        user = os.environ["SESSION_USER"]
+        session_str = db_service.get_login_session(user)
+
+        if session_str:
+            return create_session_from_cookie(session_str)
+        else:
+            return None
+
+    def _set_login_session(self, db_service, cookie):
+        """
+        セッションを保存する
+        """
+        user = os.environ["SESSION_USER"]
+        db_service.update_login_session(user, cookie)
+
     def _in_event_callback(self, response: dict):
         """
         event_callbackを受信したときの処理
@@ -69,9 +101,21 @@ class HttpHandler(BaseHTTPRequestHandler):
                     command = CommandParser(event["text"])
 
                     if command.target == "emoji":
-                        # コマンドっぽい文字列が投稿されたらログインして処理をする
-                        session, _ = login(
-                            workspace_name, email, password)
+                        # DBからログインセッションを取得する
+                        db_service = self._create_db_service()
+                        session = self._get_login_session(db_service)
+
+                        # ログインしているかチェック
+                        if session is None or not check_login(workspace_name, session):
+                            # ログインしていなかったらセッションを作成するためにログインする
+                            session = login(workspace_name, email, password)
+                            cookie_str = create_cookie_from_session(session)
+                            user = os.environ["SESSION_USER"]
+
+                            db_service.update_login_session(
+                                user, cookie_str)
+
+                        # コマンドっぽい文字列が投稿されたら処理をする
                         slack = Slack(workspace_name=workspace_name,
                                       session=session,
                                       hook_url=slack_hook_url, oauth_token=oauth_token)
