@@ -9,7 +9,7 @@ class PostgresService:
     def update_login_session(self, name, cookie):
         with self._connection.cursor() as cur:
             cur.execute(
-                "update session set session = %s where name = %s", (
+                "update login_session set session = %s where name = %s", (
                     name, cookie)
             )
             self._connection.commit()
@@ -20,7 +20,7 @@ class PostgresService:
             cur.execute(
                 "select session from login_session where name = %s", (name,))
             (session) = cur.fetchone()
-            if len(session) > 0:
+            if session is not None and len(session) > 0 and session[0] is not None:
                 return session[0].strip()
             else:
                 return ""
@@ -31,4 +31,7 @@ class PostgresService:
 
 if __name__ == '__main__':
     service = PostgresService(
-        "", "", "", "")
+        "localhost", "slack_emoji_local", "postgres", "yasu0587")
+
+    n = service.get_login_session("happo31")
+    print(n)
