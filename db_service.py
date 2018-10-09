@@ -31,7 +31,7 @@ class PostgresService:
 
 if __name__ == '__main__':
     service = PostgresService(
-        "localhost", "slack_emoji_local", "postgres", "yasu0587")
+        "", "", "", "")
 
-    n = service.get_login_session("happo31")
+    n = service.get_login_session("")
     print(n)
