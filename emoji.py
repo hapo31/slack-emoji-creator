@@ -11,6 +11,18 @@ URL_CUSTOMIZE = "{workspace_url}/customize/emoji"
 API_TOKEN_REGEX = r"api_token: \"(.*)\","
 
 
+def check_login(workspace_name: str, session):
+    """
+    ログインしているかチェックする
+    URL_CUSTOMIZEを見て、リダイレクトされたら未ログイン状態と判定する
+    """
+    slack_url = URL_SLACK.format(workspace=workspace_name)
+    customize_url = URL_CUSTOMIZE.format(workspace_url=slack_url)
+    res = session.get(customize_url, allow_redirects=False)
+
+    return res.status_code == 200
+
+
 def post_emoji(workspace_name: str, session, emoji_name: str, file_binary: bytes):
     slack_url = URL_SLACK.format(workspace=workspace_name)
     api_key = _parse_api_key(
